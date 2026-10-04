@@ -257,7 +257,8 @@ class BaseScraper(ABC):
         # cannot rank or display +EV. Better to show "—" than a fake #1.
         if not _check_sanity(self.state_code, name, price, tiers, ev_data,
                              tickets_remaining, top_tier):
-            ev_data = {"ev": None, "return_pct": None}
+            ev_data = {"ev": None, "return_pct": None,
+                       "conservative_ev": None, "conservative_return_pct": None}
             prize_pool_left = None
         return {
             "game_id": str(game_id),
@@ -265,6 +266,8 @@ class BaseScraper(ABC):
             "price": price,
             "ev": ev_data["ev"],
             "return_pct": ev_data["return_pct"],
+            "conservative_ev": ev_data.get("conservative_ev"),
+            "conservative_return_pct": ev_data.get("conservative_return_pct"),
             "overall_odds_one_in": overall_odds,
             "top_prize": top_prize,
             "top_prize_remaining": top_prize_remaining,
