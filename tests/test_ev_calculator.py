@@ -164,7 +164,8 @@ class TestCalculateEV:
 
     def test_zero_price_returns_none(self):
         result = calculate_ev(price=0, tiers=[{"prize_amount": 5, "odds_one_in": 5}], tickets_remaining=100)
-        assert result == {"ev": None, "return_pct": None}
+        assert result == {"ev": None, "return_pct": None,
+                          "conservative_ev": None, "conservative_return_pct": None}
 
     def test_falls_back_to_odds_when_remaining_missing(self):
         """Without tickets_remaining or prizes_remaining, use 1/odds_one_in."""
