@@ -206,9 +206,13 @@ class MassachusettsScraper(BaseScraper):
             ev_data = calculate_ev(price, tiers, tickets_remaining)
             ev = ev_data["ev"]
             return_pct = ev_data["return_pct"]
+            conservative_ev = ev_data["conservative_ev"]
+            conservative_return_pct = ev_data["conservative_return_pct"]
         else:
             ev = None
             return_pct = None
+            conservative_ev = None
+            conservative_return_pct = None
 
         top_tier = max(tiers, key=lambda t: t["prize_amount"])
         jackpot_odds = calculate_jackpot_odds(tiers, tickets_remaining)
