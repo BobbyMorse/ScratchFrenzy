@@ -218,6 +218,20 @@ async def _uptime_watchdog() -> None:
                 )
                 os._exit(1)
 
+        # (c) Games-chain staleness. The games "date" job re-arms itself; if that
+        # chain snaps, winners (b) stays fresh and would never catch it. Guard on
+        # having had one success first so boot grace doesn't trip it.
+        last_games = _heartbeat.get("games_last_success")
+        if last_games is not None:
+            games_stale_sec = (datetime.datetime.utcnow() - last_games).total_seconds()
+            if games_stale_sec >= WORKER_GAMES_STALE_THRESHOLD_SEC:
+                logger.error(
+                    "scraper_worker: games job last succeeded %.0fs ago "
+                    "(threshold %ds) — games chain appears broken, exiting (code 1)",
+                    games_stale_sec, WORKER_GAMES_STALE_THRESHOLD_SEC,
+                )
+                os._exit(1)
+
 
 if __name__ == "__main__":
     try:
