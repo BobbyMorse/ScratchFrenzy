@@ -8,6 +8,9 @@ import pytest
 
 from backend.ev_calculator import (
     ANNUITY_DEFAULT_CASH_RATIO,
+    FEDERAL_TAX_RATE,
+    FEDERAL_TAX_THRESHOLD,
+    after_tax_prize_value,
     annuity_present_value,
     calculate_ev,
     calculate_jackpot_odds,
