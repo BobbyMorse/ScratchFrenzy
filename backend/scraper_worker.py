@@ -69,6 +69,15 @@ WORKER_MAX_UPTIME_SEC = int(os.environ.get("WORKER_MAX_UPTIME_SEC", "21600"))  #
 # give before declaring the scheduler dead.
 WORKER_STALE_THRESHOLD_SEC = int(os.environ.get("WORKER_STALE_THRESHOLD_SEC", "9000"))  # 2.5h
 
+# Games has its own self-rescheduling chain (a "date" job that re-arms itself in
+# a finally block, see scheduler_jobs.register_jobs). If that chain ever breaks,
+# the winners interval job keeps firing — so the winners watchdog above stays
+# happy while games silently freezes. That blind spot froze every state's data
+# for 2 days on 2026-10-02. Watch games independently. Games cycles every ~5min
+# (SCRAPE_COOLDOWN_SEC) plus scrape time, so 45min is generous slack before we
+# declare the chain dead and exit for a fresh process.
+WORKER_GAMES_STALE_THRESHOLD_SEC = int(os.environ.get("WORKER_GAMES_STALE_THRESHOLD_SEC", "2700"))  # 45m
+
 healthcheck_app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 _worker_status = {"phase": "booting", "error": None}
 # Mutated in-place by scheduler_jobs.register_jobs(heartbeat=_heartbeat).
