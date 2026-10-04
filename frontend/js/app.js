@@ -2759,6 +2759,12 @@ function renderModal(g) {
   const cls = ret >= 100 ? "ev-positive" : ret >= 90 ? "ev-near" : ret >= 70 ? "ev-mid" : "ev-low";
   const ev = g.ev != null ? `${g.ev_approximate ? "~" : ""}${g.ev >= 0 ? "+" : ""}$${g.ev.toFixed(2)}` : "N/A";
 
+  // Conservative return: the same math after 24% federal withholding on prizes
+  // over $5,000 (state taxes NOT modeled). Annuity top prizes are already carried
+  // at lump-sum/cash value in the naive figure, so this differs by federal tax only.
+  const consRet = g.conservative_return_pct;
+  const consCls = consRet >= 100 ? "ev-positive" : consRet >= 90 ? "ev-near" : consRet >= 70 ? "ev-mid" : "ev-low";
+
   const prizePoolRemaining = g.prize_pool_left != null
     ? g.prize_pool_left
     : (g.prize_tiers || []).reduce(
