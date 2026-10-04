@@ -2824,6 +2824,12 @@ function renderModal(g) {
       <div class="modal-stat">
         <div class="modal-stat-val ${cls}">${ret != null ? gateBlur(ret.toFixed(2) + "%") : "N/A"}</div>
         <div class="modal-stat-lbl">Return %</div>
+        <div class="modal-stat-note">prize value ÷ price, before taxes</div>
+      </div>
+      <div class="modal-stat">
+        <div class="modal-stat-val ${consRet != null ? consCls : ""}">${consRet != null ? gateBlur(consRet.toFixed(2) + "%") : "—"}</div>
+        <div class="modal-stat-lbl">Return % after tax</div>
+        <div class="modal-stat-note">after 24% federal withholding on prizes over $5,000 · state taxes not included</div>
       </div>
       <div class="modal-stat">
         <div class="modal-stat-val ${g.ev >= 0 ? "ev-positive" : ""}">${g.ev != null ? gateBlur(ev) : ev}</div>
