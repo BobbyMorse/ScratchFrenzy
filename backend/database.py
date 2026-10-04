@@ -604,6 +604,8 @@ async def upsert_game(conn: asyncpg.Connection, state_code: str, state_name: str
         game_data.get("top_prize_annuity_annual"),
         bool(game_data.get("has_second_chance", False)),
         game_data.get("second_chance_url"),
+        game_data.get("conservative_ev"),
+        game_data.get("conservative_return_pct"),
     )
     return row["id"]
 
