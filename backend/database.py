@@ -717,7 +717,8 @@ async def get_all_games(conn, state=None, min_price=None, max_price=None,
                g.top_prize_annuity_years,
                g.top_prize_annuity_annual,
                COALESCE(g.has_second_chance, FALSE) AS has_second_chance,
-               g.second_chance_url
+               g.second_chance_url,
+               g.conservative_ev, g.conservative_return_pct
         FROM games g
         WHERE {" AND ".join(conditions)}
         ORDER BY g.{sort_by} {direction}
