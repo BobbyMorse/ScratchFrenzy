@@ -2873,6 +2873,12 @@ function renderModal(g) {
       </div>
     </div>
 
+    ${consRet != null ? `<div style="background:var(--surface-2,rgba(255,255,255,.03));border:1px solid var(--border,rgba(255,255,255,.08));border-radius:8px;padding:.65rem .85rem;margin:.75rem 0;font-size:.8rem;color:var(--text-muted);line-height:1.5">
+      <strong style="color:var(--text)">How these are calculated.</strong>
+      <strong>Return %</strong> is the total remaining prize value divided by ticket price — the raw payout per dollar, before any taxes. Annuity "for-life" top prizes are counted at their lump-sum cash value, not the advertised total.
+      <strong>Return % after tax</strong> takes the same figure and subtracts 24% federal withholding from every prize over $5,000 (smaller prizes are paid in full). State taxes are not included, so your real after-tax return may be a little lower.
+    </div>` : ""}
+
     ${g.has_second_chance ? `<div style="display:flex;align-items:center;gap:.6rem;background:rgba(20,184,166,.07);border:1px solid rgba(20,184,166,.25);border-radius:8px;padding:.55rem .8rem;margin:.75rem 0 1rem;font-size:.82rem;color:var(--text)">
       <span style="font-weight:800;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:#0f766e;background:rgba(20,184,166,.14);padding:.15rem .45rem;border-radius:4px">2nd Chance</span>
       <span style="color:var(--text-muted)">Losing tickets can be entered into a separate drawing.${g.second_chance_url ? ` <a href="${escHtml(g.second_chance_url)}" target="_blank" rel="noopener" style="color:#0f766e;font-weight:600">Enter ↗</a>` : ""}</span>
