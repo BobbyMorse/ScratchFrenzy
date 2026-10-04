@@ -35,6 +35,8 @@ from backend.ev_calculator import (
     calculate_ev,
     calculate_jackpot_odds,
     find_top_prize,
+    FEDERAL_TAX_RATE,
+    FEDERAL_TAX_THRESHOLD,
 )
 
 logger = logging.getLogger(__name__)
