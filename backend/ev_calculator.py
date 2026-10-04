@@ -62,15 +62,34 @@ def effective_prize_value(tier: dict) -> float:
     return face * ANNUITY_DEFAULT_CASH_RATIO if face else 0
 
 
+def after_tax_prize_value(tier: dict) -> float:
+    """Cash-equivalent prize value after federal withholding.
+
+    Federal tax (24%) is withheld only on prizes above the $5,000 threshold;
+    smaller prizes are paid in full. State taxes are not modeled. Annuity tiers
+    are already carried at cash-option value by effective_prize_value, so the
+    haircut applies to that lump sum, not the face annuity."""
+    eff = effective_prize_value(tier)
+    if eff and eff >= FEDERAL_TAX_THRESHOLD:
+        return eff * (1 - FEDERAL_TAX_RATE)
+    return eff
+
+
 def calculate_ev(price: float, tiers: list[dict], tickets_remaining: int = None) -> dict:
     """
     tiers: list of {prize_amount, odds_one_in, prizes_remaining, prizes_total,
                     is_annuity?, cash_value?, annuity_annual?, annuity_years?}
     Annuity-marked tiers use effective_prize_value (cash equivalent), not face.
-    Returns {ev, return_pct}
+
+    Returns {ev, return_pct, conservative_ev, conservative_return_pct}.
+    The conservative pair applies federal withholding (24% on prizes >$5,000) to
+    the same probability-weighted sum; state taxes are excluded. It is always
+    <= the naive figure and is None whenever the naive figure is None.
     """
+    null = {"ev": None, "return_pct": None,
+            "conservative_ev": None, "conservative_return_pct": None}
     if not tiers or price <= 0:
-        return {"ev": None, "return_pct": None}
+        return null
 
     use_remaining = (
         tickets_remaining is not None
@@ -79,27 +98,38 @@ def calculate_ev(price: float, tiers: list[dict], tickets_remaining: int = None)
     )
 
     total_ev = 0.0
+    total_ev_after_tax = 0.0
     for tier in tiers:
         prize = effective_prize_value(tier)
         if not prize or prize <= 0:
             continue
+        taxed = after_tax_prize_value(tier)
 
         if use_remaining:
             remaining = tier.get("prizes_remaining", 0) or 0
             if remaining > 0:
                 prob = remaining / tickets_remaining
                 total_ev += prize * prob
+                total_ev_after_tax += taxed * prob
         else:
             odds = tier.get("odds_one_in")
             if odds and odds > 0:
                 total_ev += prize / odds
+                total_ev_after_tax += taxed / odds
 
     if total_ev <= 0:
-        return {"ev": None, "return_pct": None}
+        return null
 
     ev = round(total_ev - price, 4)
     return_pct = round((total_ev / price) * 100, 2)
-    return {"ev": ev, "return_pct": return_pct}
+    conservative_ev = round(total_ev_after_tax - price, 4)
+    conservative_return_pct = round((total_ev_after_tax / price) * 100, 2)
+    return {
+        "ev": ev,
+        "return_pct": return_pct,
+        "conservative_ev": conservative_ev,
+        "conservative_return_pct": conservative_return_pct,
+    }
 
 
 def calculate_jackpot_odds(tiers: list[dict], tickets_remaining: int = None) -> float | None:
