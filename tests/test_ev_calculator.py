@@ -175,6 +175,56 @@ class TestCalculateEV:
         assert result["ev"] == pytest.approx(0, abs=1e-4)
 
 
+class TestAfterTaxPrizeValue:
+    def test_small_prize_untaxed(self):
+        # Below the $5,000 threshold → paid in full.
+        assert after_tax_prize_value({"prize_amount": 500}) == 500
+
+    def test_prize_at_threshold_is_taxed(self):
+        # Exactly $5,000 is taxed (>= threshold) for a conservative estimate.
+        assert after_tax_prize_value({"prize_amount": FEDERAL_TAX_THRESHOLD}) == pytest.approx(
+            FEDERAL_TAX_THRESHOLD * (1 - FEDERAL_TAX_RATE))
+
+    def test_large_prize_taxed(self):
+        assert after_tax_prize_value({"prize_amount": 1_000_000}) == pytest.approx(
+            1_000_000 * (1 - FEDERAL_TAX_RATE))
+
+    def test_annuity_haircut_applies_to_cash_value(self):
+        # Federal tax applies to the lump-sum cash value, not the face annuity.
+        tier = {"prize_amount": 10_000, "is_annuity": True, "cash_value": 7_000_000}
+        assert after_tax_prize_value(tier) == pytest.approx(7_000_000 * (1 - FEDERAL_TAX_RATE))
+
+
+class TestConservativeEV:
+    def test_all_small_prizes_equal_naive(self):
+        """With no prize over $5,000, no tax applies → conservative == naive."""
+        tiers = [{"prize_amount": 5, "odds_one_in": 5, "prizes_total": 100,
+                  "prizes_remaining": 100}]
+        r = calculate_ev(price=1, tiers=tiers, tickets_remaining=500)
+        assert r["conservative_return_pct"] == r["return_pct"]
+        assert r["conservative_ev"] == r["ev"]
+
+    def test_large_prize_gets_federal_haircut(self):
+        # One $10,000 tier, 1 remaining in 1,000 tickets, $5 ticket.
+        tiers = [{"prize_amount": 10_000, "odds_one_in": 1_000,
+                  "prizes_total": 1, "prizes_remaining": 1}]
+        r = calculate_ev(price=5, tiers=tiers, tickets_remaining=1_000)
+        # naive gross = 10_000/1_000 = $10 → return 200%
+        assert r["return_pct"] == pytest.approx(200.0, rel=1e-3)
+        # taxed gross = 10_000*0.76/1_000 = $7.60 → return 152%
+        assert r["conservative_return_pct"] == pytest.approx(152.0, rel=1e-3)
+        assert r["conservative_ev"] == pytest.approx(2.60, abs=1e-2)
+
+    def test_conservative_never_exceeds_naive(self):
+        tiers = [
+            {"prize_amount": 50_000, "odds_one_in": 10_000, "prizes_total": 2, "prizes_remaining": 2},
+            {"prize_amount": 100, "odds_one_in": 10, "prizes_total": 500, "prizes_remaining": 500},
+        ]
+        r = calculate_ev(price=10, tiers=tiers, tickets_remaining=5_000)
+        assert r["conservative_return_pct"] <= r["return_pct"]
+        assert r["conservative_ev"] <= r["ev"]
+
+
 class TestJackpotOdds:
     def test_no_million_dollar_tiers_returns_none(self):
         tiers = [{"prize_amount": 100, "odds_one_in": 50, "prizes_remaining": 100}]
