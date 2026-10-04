@@ -952,6 +952,7 @@ async def api_games(
         "start_date", "top_prize_is_annuity", "top_prize_cash_value",
         "top_prize_annuity_years", "top_prize_annuity_annual",
         "has_second_chance", "second_chance_url",
+        "conservative_ev", "conservative_return_pct",
     ]
     games = []
     today = datetime.date.today()
