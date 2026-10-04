@@ -12,12 +12,26 @@ When only initial odds are available:
 Return % = (EV + price) / price * 100
   >100% → positive expected value (rare, happens when prizes cluster toward end of run)
   ~60-70% → typical scratch ticket
+
+Conservative Return % applies a federal tax haircut on top of the same math:
+federal withholding (24%) is subtracted from every prize tier whose cash value
+exceeds the IRS withholding threshold ($5,000). Smaller prizes are paid in full,
+so they are untaxed. STATE taxes are deliberately NOT modeled — the conservative
+figure reflects federal withholding only. Annuity top prizes are already carried
+at their cash-option (lump-sum) value via effective_prize_value, so the
+conservative figure differs from the naive one solely by this federal tax.
 """
 from __future__ import annotations
 
 
 ANNUITY_DISCOUNT_RATE = 0.04
 ANNUITY_DEFAULT_CASH_RATIO = 0.6
+
+# Federal lottery withholding: 24% is withheld on prizes whose proceeds exceed
+# $5,000 (26 U.S.C. §3402(q)). We apply it to the prize's cash-equivalent value.
+# State taxes are intentionally excluded from the conservative estimate.
+FEDERAL_TAX_RATE = 0.24
+FEDERAL_TAX_THRESHOLD = 5000
 
 
 def annuity_present_value(annual: float, years: int, rate: float = ANNUITY_DISCOUNT_RATE) -> float:
