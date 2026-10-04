@@ -248,6 +248,11 @@ async def init_db():
         await add_column_if_missing(conn, "games", "top_prize_cash_value", "REAL")
         await add_column_if_missing(conn, "games", "top_prize_annuity_years", "INTEGER")
         await add_column_if_missing(conn, "games", "top_prize_annuity_annual", "REAL")
+        # Conservative EV/return: naive figure after federal withholding (24% on
+        # prizes >$5,000; state taxes excluded). Recomputed every scrape alongside
+        # ev/return_pct. See ev_calculator.calculate_ev.
+        await add_column_if_missing(conn, "games", "conservative_ev", "REAL")
+        await add_column_if_missing(conn, "games", "conservative_return_pct", "REAL")
         # Second-chance drawing surface — populated per-game from each state's
         # actual second-chance promotions list, not blanket-flagged.
         await add_column_if_missing(conn, "games", "has_second_chance", "BOOLEAN DEFAULT FALSE")
