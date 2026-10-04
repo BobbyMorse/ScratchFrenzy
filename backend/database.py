@@ -549,15 +549,18 @@ async def upsert_game(conn: asyncpg.Connection, state_code: str, state_name: str
             start_date, top_prize_is_annuity, top_prize_cash_value,
             top_prize_annuity_years, top_prize_annuity_annual,
             has_second_chance, second_chance_url,
+            conservative_ev, conservative_return_pct,
             scraped_at, is_active)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19,
-                $20, $21, $22, $23, $24, $25, $26, NOW(), TRUE)
+                $20, $21, $22, $23, $24, $25, $26, $27, $28, NOW(), TRUE)
         ON CONFLICT(state_code, game_id) DO UPDATE SET
             -- Dynamic fields: must overwrite every scrape (even to NULL).
             -- ev/return_pct/jackpot_odds_one_in are recomputed; remaining
             -- counters legitimately move; ev_approximate reflects this run.
             ev=EXCLUDED.ev,
             return_pct=EXCLUDED.return_pct,
+            conservative_ev=EXCLUDED.conservative_ev,
+            conservative_return_pct=EXCLUDED.conservative_return_pct,
             top_prize_remaining=EXCLUDED.top_prize_remaining,
             tickets_remaining=EXCLUDED.tickets_remaining,
             prize_pool_left=EXCLUDED.prize_pool_left,
