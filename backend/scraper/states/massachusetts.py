@@ -223,6 +223,8 @@ class MassachusettsScraper(BaseScraper):
             "price":                price,
             "ev":                   ev,
             "return_pct":           return_pct,
+            "conservative_ev":      conservative_ev,
+            "conservative_return_pct": conservative_return_pct,
             "overall_odds_one_in":  official_odds,
             "top_prize":            top_tier["prize_amount"],
             "top_prize_remaining":  top_tier["prizes_remaining"],
