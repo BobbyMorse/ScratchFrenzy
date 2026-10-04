@@ -540,6 +540,8 @@ class PennsylvaniaScraper(BaseScraper):
                 "price":               price,
                 "ev":                  ev_data["ev"],
                 "return_pct":          ev_data["return_pct"],
+                "conservative_ev":     ev_data.get("conservative_ev"),
+                "conservative_return_pct": ev_data.get("conservative_return_pct"),
                 "overall_odds_one_in": overall_odds,
                 "top_prize":           top_prize,
                 "top_prize_remaining": top_prize_remaining,
