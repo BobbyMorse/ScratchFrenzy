@@ -526,7 +526,8 @@ class PennsylvaniaScraper(BaseScraper):
             elif pdf_tiers:
                 ev_data = calculate_ev(price, all_tiers)
             else:
-                ev_data = {"ev": None, "return_pct": None}
+                ev_data = {"ev": None, "return_pct": None,
+                           "conservative_ev": None, "conservative_return_pct": None}
 
             top_prize, top_prize_remaining = find_top_prize(all_tiers)
             jackpot_odds = calculate_jackpot_odds(all_tiers, tickets_remaining)
