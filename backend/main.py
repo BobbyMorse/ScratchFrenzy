@@ -1045,6 +1045,7 @@ async def api_game_detail(game_id: int):
         "start_date", "top_prize_is_annuity", "top_prize_cash_value",
         "top_prize_annuity_years", "top_prize_annuity_annual",
         "has_second_chance", "second_chance_url",
+        "conservative_ev", "conservative_return_pct",
     ]
     tier_cols = ["prize_amount", "odds_one_in", "prizes_total", "prizes_remaining", "last_claimed_at"]
 
