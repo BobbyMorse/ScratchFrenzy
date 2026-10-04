@@ -267,24 +267,35 @@ def _fetch_game_odds(
 # ── hybrid EV ─────────────────────────────────────────────────────────────────
 
 def _hybrid_ev(price: float, all_tiers: list[dict], tickets_remaining: float) -> dict:
-    """EV using prizes_remaining for top-6 tiers (where available), original odds otherwise."""
+    """EV using prizes_remaining for top-6 tiers (where available), original odds otherwise.
+
+    conservative_* applies federal withholding (24% on prizes >$5,000) to the
+    same sum; state taxes excluded. See ev_calculator.calculate_ev."""
     total = 0.0
+    total_after_tax = 0.0
     for t in all_tiers:
         prize = t.get("prize_amount") or 0
         if prize <= 0:
             continue
+        taxed = prize * (1 - FEDERAL_TAX_RATE) if prize >= FEDERAL_TAX_THRESHOLD else prize
         rem = t.get("prizes_remaining")
         if rem is not None:
-            total += prize * (rem / tickets_remaining)
+            prob = rem / tickets_remaining
+            total += prize * prob
+            total_after_tax += taxed * prob
         else:
             odds = t.get("odds_one_in")
             if odds and odds > 0:
                 total += prize / odds
+                total_after_tax += taxed / odds
     if total <= 0:
-        return {"ev": None, "return_pct": None}
+        return {"ev": None, "return_pct": None,
+                "conservative_ev": None, "conservative_return_pct": None}
     return {
         "ev": round(total - price, 4),
         "return_pct": round((total / price) * 100, 2),
+        "conservative_ev": round(total_after_tax - price, 4),
+        "conservative_return_pct": round((total_after_tax / price) * 100, 2),
     }
 
 
