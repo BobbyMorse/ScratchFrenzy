@@ -5,10 +5,13 @@ dockerfilePath = "Dockerfile"
 [deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 120
-# Restart on any non-zero exit. The scraper_worker self-exits with code 1
-# after WORKER_MAX_UPTIME_SEC (6h) or when the winners scheduler goes silent
-# >2.5h — both rely on Railway restarting us. Without an explicit policy here
-# the default is ON_FAILURE with 10 retries; we want enough headroom that
-# routine 6h restarts never exhaust the budget.
-restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 100
+# The scraper_worker self-exits with code 1 every WORKER_MAX_UPTIME_SEC (6h),
+# and again whenever a scheduler watchdog trips — it RELIES on Railway bringing
+# it back. ON_FAILURE is wrong here: restartPolicyMaxRetries is a cumulative
+# lifetime counter per deployment that does NOT reset on a successful run, so a
+# worker that exits 4x/day burns the budget in a fixed number of days (100/4 ≈
+# 25) and then stays Crashed. That stranded prod for 2 days on 2026-10-02 — the
+# only reason it hadn't bitten sooner is that every deploy resets the counter.
+# ALWAYS restarts on every exit with no retry ceiling, which is the contract a
+# self-restarting daemon actually needs.
+restartPolicyType = "ALWAYS"
