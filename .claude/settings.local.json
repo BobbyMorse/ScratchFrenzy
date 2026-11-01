@@ -6,5 +6,9 @@
       "WebFetch(domain:walottery.com)",
       "WebFetch(domain:lottery.sd.gov)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ],
+  "enableAllProjectMcpServers": true
 }
